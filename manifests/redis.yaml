@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-pass
+  namespace: url-shortener
+data:
+  password: aGVsbG8td29ybGQ=
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  namespace: url-shortener
+  labels:
+    app: url-shortener
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: url-shortener
+      name: redis-pod
+  template:
+    metadata: 
+      labels:
+        name: redis-pod
+        app: url-shortener
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+          - containerPort: 6379
+        args: ["--requirepass", "$(REDIS_PASSWORD)"]
+        env:
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: redis-pass
+                key: password

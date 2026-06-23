@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: url-shortener-app-deployment
+  labels:
+    app: url-shortener
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: url-shortener-app-pod
+      app: url-shortener
+  template:
+    metadata: 
+      labels: 
+        name: url-shortener-app-pod
+        app: url-shortener
+    spec:
+      containers:
+        - name: app-pod
+          image: boodiebo/url-shortener-api:v1
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"
+          env:
+            - name: REDIS_HOST
+              value: redis-service
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-pass
+                  key: password
+          ports:
+            - containerPort: 8000
+      imagePullSecrets:
+        - name: dockerhub-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: url-shortener-app-service
+  labels:
+    app: url-shortener
+spec:
+  type: NodePort
+  selector:
+    name: url-shortener-app-pod
+    app: url-shortener
+  ports:
+    - port: 8001
+      targetPort: 8000
