@@ -28,14 +28,25 @@ def shorten_url(data: URLRequest):
     r.set(code, str(data.url))
     return {"short_url": f"http://localhost:8000/{code}"}
 
+@app.get("/heavy")
+def heavy():
+    total = sum(i * i for i in range(1, 20_000_000))
+    return {"result": total}
+
+@app.get("/healthz")
+def health_check():
+    try:
+        r.ping()
+        return {"status": "ok"}
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Redis unavailable: {e}"
+        )
+
 @app.get("/{code}")
 def redirect_to_url(code: str):
     original_url = r.get(code)
     if not original_url:
         raise HTTPException(status_code=404, detail="URL not found")
     return {"redirect_to": original_url}
-
-@app.get("/healthz")
-def health_check():
-    # Понадобится для Probes на следующем этапе
-    return {"status": "ok"}

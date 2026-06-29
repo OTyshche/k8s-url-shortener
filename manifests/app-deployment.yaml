@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: url-shortener-app-deployment
+  namespace: url-shortener
   labels:
     app: url-shortener
 spec:
@@ -18,7 +19,7 @@ spec:
     spec:
       containers:
         - name: app-pod
-          image: boodiebo/url-shortener-api:v1
+          image: boodiebo/url-shortener-api:v4
           resources:
             requests:
               cpu: "250m"
@@ -38,8 +39,32 @@ spec:
                   key: password
           ports:
             - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 2
       imagePullSecrets:
         - name: dockerhub-secret
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - url-shortener
+            topologyKey: "kubernetes.io/hostname"
 ---
 apiVersion: v1
 kind: Service
