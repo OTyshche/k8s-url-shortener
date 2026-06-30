@@ -55,16 +55,6 @@ spec:
             failureThreshold: 2
       imagePullSecrets:
         - name: dockerhub-secret
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - url-shortener
-            topologyKey: "kubernetes.io/hostname"
 ---
 apiVersion: v1
 kind: Service

@@ -25,6 +25,10 @@ spec:
         name: redis-pod
         app: url-shortener
     spec:
+      volumes:
+        - name: redis-storage
+          persistentVolumeClaim:
+            claimName: redis-pvc
       containers:
       - name: redis
         image: redis:7-alpine
@@ -37,7 +41,10 @@ spec:
             cpu: "500m"
         ports:
           - containerPort: 6379
-        args: ["--requirepass", "$(REDIS_PASSWORD)"]
+        volumeMounts:
+          - mountPath: "/data"
+            name: redis-storage
+        args: ["--requirepass", "$(REDIS_PASSWORD)", "--appendonly", "yes"]
         env:
           - name: REDIS_PASSWORD
             valueFrom:
