@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+  labels:
+    app: url-shortener
+  namespace: url-shortener
+data:
+  config.json:  |
+    {
+    "max_link_length": 2048,
+    "environment": "development"
+    }

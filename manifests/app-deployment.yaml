@@ -17,9 +17,13 @@ spec:
         name: url-shortener-app-pod
         app: url-shortener
     spec:
+      volumes:
+        - name: api-config-volume
+          configMap:
+            name: api-config
       containers:
         - name: app-pod
-          image: boodiebo/url-shortener-api:v4
+          image: boodiebo/url-shortener-api:v7
           resources:
             requests:
               cpu: "250m"
@@ -37,6 +41,9 @@ spec:
                 secretKeyRef:
                   name: redis-pass
                   key: password
+          volumeMounts:
+            - mountPath: "/app/config"
+              name: api-config-volume
           ports:
             - containerPort: 8000
           readinessProbe:
@@ -62,6 +69,10 @@ metadata:
   name: url-shortener-app-service
   labels:
     app: url-shortener
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8001"
+    prometheus.io/path: "/metrics"
 spec:
   type: NodePort
   selector:
