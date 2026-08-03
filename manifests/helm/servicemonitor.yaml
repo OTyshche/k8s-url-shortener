@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: url-shortener-api-monitor
+  namespace: monitoring
+  labels:
+    release: prometheus 
+spec: 
+  selector:
+    matchLabels:
+      app: url-shortener
+  namespaceSelector:
+    matchNames:
+    - url-shortener
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+  
