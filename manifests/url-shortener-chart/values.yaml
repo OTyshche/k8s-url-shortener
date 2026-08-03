@@ -1,0 +1,39 @@
+# Default values for url-shortener-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 2
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: boodiebo/url-shortener-api
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "v7"
+
+service:
+  type: NodePort
+  port: 8001
+  targetPort: 8000
+
+config:
+  maxLinkLength: 2048
+  environment: "production"
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "64Mi"
+  limits:
+    cpu: "500m"
+    memory: "128Mi"
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    releaseLabel: prometheus
+
+ingress:
+  host: url-shortener-helm.local

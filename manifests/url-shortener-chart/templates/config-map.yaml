@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+    app: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+data:
+  config.json:  |
+    {
+    "max_link_length": {{ .Values.config.maxLinkLength }},
+    "environment": {{ .Values.config.environment }}
+    }

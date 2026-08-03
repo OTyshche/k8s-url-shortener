@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-cron
+  labels:
+    app: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: redis-stats
+              image: redis:7-alpine
+              command:
+                - redis-cli
+              args: ["-h", "redis-service", "-a", "$(REDIS_PASSWORD)", "DBSIZE"]
+              env:
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: redis-pass
+                      key: password
+          restartPolicy: OnFailure
+
